@@ -1,0 +1,7 @@
+accounts
+.env.dev
+test.py
+**/*,pyc
+**/__pycache__
+.env.prod
+.env
