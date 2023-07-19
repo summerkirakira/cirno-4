@@ -10,9 +10,11 @@ adapters = [
     { name = "OneBot V11", module_name = "nonebot.adapters.onebot.v11" }
 ]
 plugins = [
-"nonebot_plugin_gocqhttp"
+    "nonebot_plugin_gocqhttp",
 ]
-plugin_dirs = []
+plugin_dirs = [
+    "plugins"
+]
 builtin_plugins = []
 
 [tool.poetry]

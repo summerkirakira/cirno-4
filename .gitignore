@@ -1,2 +1,5 @@
 accounts
 .env.dev
+test.py
+**/*,pyc
+**/__pycache__
