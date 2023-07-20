@@ -10,7 +10,7 @@ adapters = [
     { name = "OneBot V11", module_name = "nonebot.adapters.onebot.v11" }
 ]
 plugins = [
-    "nonebot_plugin_gocqhttp",
+#    "nonebot_plugin_gocqhttp",
     "nonebot_plugin_analysis_bilibili",
     "nonebot_plugin_eventexpiry",
     "nonebot_plugin_githubcard"
@@ -37,6 +37,8 @@ nonebot-plugin-analysis-bilibili = "^2.5.0"
 nonebot-plugin-eventexpiry = "^0.1.1"
 nonebot-plugin-githubcard = "^0.1.5"
 nonebot-plugin-apscheduler = "^0.3.0"
+sqlalchemy = "^2.0.19"
+aiomysql = "^0.2.0"
 
 
 [build-system]
