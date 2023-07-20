@@ -10,7 +10,7 @@ adapters = [
     { name = "OneBot V11", module_name = "nonebot.adapters.onebot.v11" }
 ]
 plugins = [
-#    "nonebot_plugin_gocqhttp",
+    "nonebot_plugin_gocqhttp",
     "nonebot_plugin_analysis_bilibili",
     "nonebot_plugin_eventexpiry",
     "nonebot_plugin_githubcard"
