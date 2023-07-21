@@ -4,8 +4,6 @@ from .config import Config
 
 from sqlalchemy import create_engine, MetaData, Column, Integer, Table
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.ext.asyncio.engine import AsyncConnection
-from sqlalchemy.future import select
 from sqlalchemy.orm import declarative_base, sessionmaker
 
 
@@ -17,19 +15,16 @@ DATABASE_URL = f"mysql+aiomysql://{config.mysql_user}:{config.mysql_password}@{c
 engine = create_async_engine(DATABASE_URL, echo=True)
 
 Base = declarative_base()
+
 metadata = MetaData()
 
 async_connection = None
 
 
-async def create_table_from_class(cls):
-    table_name = cls.__tablename__
-    columns = [col for col in cls.__dict__.values() if isinstance(col, Column)]
-    table = Table(table_name, metadata, *columns)
-    cls.__table__ = table
-
+async def create_table_from_class():
     async with engine.begin() as conn:
-        await conn.run_sync(metadata.create_all)
+        # 创建表格（如果尚不存在）
+        await conn.run_sync(Base.metadata.create_all)
 
 
 @driver.on_startup

@@ -1034,6 +1034,21 @@ py-cpuinfo = ">=8,<10"
 proxy = ["proxy.py (>=2.4.3,<3.0.0)"]
 
 [[package]]
+name = "nonebot-plugin-localstore"
+version = "0.5.0"
+description = "Local Storage Support for NoneBot2"
+optional = false
+python-versions = ">=3.8,<4.0"
+files = [
+    {file = "nonebot_plugin_localstore-0.5.0-py3-none-any.whl", hash = "sha256:31ada7d363bdc9326e14f054d02f2c8cee58ec7a970e534ac2793d75b818cf95"},
+    {file = "nonebot_plugin_localstore-0.5.0.tar.gz", hash = "sha256:0099d99c427b13c52b6a23588b954dc8651c0b0b556d743f36aa2dd246576611"},
+]
+
+[package.dependencies]
+nonebot2 = ">=2.0.0,<3.0.0"
+typing-extensions = ">=4.0.0"
+
+[[package]]
 name = "nonebot2"
 version = "2.0.0"
 description = "An asynchronous python bot framework."
@@ -1733,4 +1748,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "520b810db6afae18e942ded591bb8809ddb7ab7e9a352e2f602ec983e438f4b6"
+content-hash = "24192ab3d7a1532ee1bc3d1044cb2a06edf7d7ca1ca97fe783aa3138199b2510"
