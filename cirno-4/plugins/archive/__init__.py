@@ -20,9 +20,9 @@ config = Config.parse_obj(global_config)
 driver = get_driver()
 
 
-@driver.on_startup
-async def create_table():
-    await create_table_from_class()
+# @driver.on_startup
+# async def create_table():
+#     await create_table_from_class()
 
 
 add_entries = on_command("编辑词条", aliases={"添加词条", "增加词条"}, priority=15, block=True)
