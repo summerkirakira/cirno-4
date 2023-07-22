@@ -6,6 +6,11 @@ from sqlalchemy import create_engine, MetaData, Column, Integer, Table
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import declarative_base, sessionmaker
 
+import logging
+
+# 设置SQLAlchemy日志级别为CRITICAL
+logging.getLogger('sqlalchemy.engine').setLevel(logging.CRITICAL)
+
 
 global_config = get_driver().config
 config = Config.parse_obj(global_config)

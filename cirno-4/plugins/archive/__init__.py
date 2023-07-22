@@ -1,5 +1,5 @@
 from datetime import datetime
-from nonebot import get_driver, require, on_command, Bot
+from nonebot import get_driver, require, on_command, Bot, logger
 from nonebot.params import CommandArg
 from nonebot.adapters.onebot.v11 import GroupMessageEvent, MessageSegment
 from nonebot.adapters import Message
@@ -26,6 +26,9 @@ driver = get_driver()
 #     await create_table_from_class()
 
 image_path = store.get_data_dir("archive") / "images"
+
+logger.warning(image_path.absolute())
+
 if not image_path.exists():
     image_path.mkdir(parents=True)
 
