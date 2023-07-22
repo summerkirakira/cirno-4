@@ -38,9 +38,10 @@ nonebot-plugin-eventexpiry = "^0.1.1"
 nonebot-plugin-githubcard = "^0.1.5"
 nonebot-plugin-apscheduler = "^0.3.0"
 sqlalchemy = "^2.0.19"
-aiomysql = "^0.2.0"
 cryptography = "^41.0.2"
 nonebot-plugin-localstore = "^0.5.0"
+aiopg = "^1.4.0"
+aiomysql = "^0.2.0"
 
 
 [build-system]

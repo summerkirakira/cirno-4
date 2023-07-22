@@ -21,7 +21,7 @@ metadata = MetaData()
 async_connection = None
 
 
-async def create_table_from_class():
+async def create_table_from_class(cls):
     async with engine.begin() as conn:
         # 创建表格（如果尚不存在）
         await conn.run_sync(Base.metadata.create_all)

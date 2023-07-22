@@ -60,13 +60,12 @@ async def _():
                     break
             if not is_exist:
                 new_players_list.append(new_player)
-
+        players = new_players
         if len(new_players_list) > 0:
             for broadcast_group in plugin_config.broadcast_group:
                 for bot_id in get_bots():
                     if bot_id == str(broadcast_group.bot_id):
                         await get_bots()[bot_id].send_group_msg(group_id=broadcast_group.group_id, message=f"小伙伴{','.join([player.name for player in new_players_list])}上线啦！")
-        players = new_players
     except httpx.ReadTimeout as e:
         logger.warning(f"Refresh players list timeout")
     except Exception as e:
