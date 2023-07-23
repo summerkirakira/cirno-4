@@ -25,6 +25,7 @@ from ..database_connector import Base
 
 class EntryCache(BaseModel):
     key: str
+    aliases: list[str]
     value: str
     available: int
     called_times: int
@@ -39,6 +40,7 @@ class Entry(Base):
     __tablename__ = 'entry'
     id = Column(Integer, primary_key=True, autoincrement=True)
     key = Column(String(100))
+    aliases = relationship('Alias', backref='entry')
     value = Column(String(5000))
     available = Column(Integer)
     called_times = Column(Integer)
@@ -61,7 +63,8 @@ class Entry(Base):
             creator_name=self.creator_name,
             type=self.type,
             locked=self.locked,
-            enabled_groups=[group.group_id for group in self.enabled_groups]
+            enabled_groups=[group.group_id for group in self.enabled_groups],
+            aliases=[alias.key for alias in self.aliases]
         )
 
 
@@ -69,4 +72,11 @@ class Group(Base):
     __tablename__ = 'group'
     id = Column(Integer, primary_key=True, autoincrement=True)
     group_id = Column(String(100))
+    entry_id = Column(Integer, ForeignKey('entry.id'))
+
+
+class Alias(Base):
+    __tablename__ = 'alias'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    key = Column(String(100))
     entry_id = Column(Integer, ForeignKey('entry.id'))

@@ -26,7 +26,7 @@ metadata = MetaData()
 async_connection = None
 
 
-async def create_table_from_class(cls):
+async def create_table_from_class():
     async with engine.begin() as conn:
         # 创建表格（如果尚不存在）
         await conn.run_sync(Base.metadata.create_all)
@@ -35,6 +35,7 @@ async def create_table_from_class(cls):
 @driver.on_startup
 async def main():
     async with engine.begin():
+        await create_table_from_class()
         logger.success(f"Connected to {config.mysql_host}")
 
 
