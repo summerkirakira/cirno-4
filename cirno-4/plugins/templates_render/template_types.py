@@ -215,5 +215,8 @@ class Menus:
                 d[menu.name] = {"des": menu.des, "funcs": {f.name: f.desc for f in menu.funcs}}
             else:
                 d[menu.name] = {"funcs": {f.name: f.desc for f in menu.funcs}}
-            func_size += len(menu.funcs)
+            try:
+                func_size += len(menu.funcs)
+            except:
+                func_size += 1
         return d, func_size
