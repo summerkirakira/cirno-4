@@ -209,9 +209,11 @@ class Menus:
 
     def to_dict(self):
         d = {}
+        func_size = 0
         for menu in self.menus:
             if menu.des:
                 d[menu.name] = {"des": menu.des, "funcs": {f.name: f.desc for f in menu.funcs}}
             else:
                 d[menu.name] = {"funcs": {f.name: f.desc for f in menu.funcs}}
-        return d
+            func_size += len(menu.funcs)
+        return d, func_size
