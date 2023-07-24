@@ -3,3 +3,4 @@ accounts
 test.py
 **/*,pyc
 **/__pycache__
+data
