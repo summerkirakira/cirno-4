@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel
 from sqlalchemy import Integer, Column, String, DateTime, ForeignKey
 from sqlalchemy.orm import declarative_base, relationship
@@ -31,6 +33,7 @@ class EntryCache(BaseModel):
     called_times: int
     creator_id: str
     creator_name: str
+    create_time: str
     type: str
     locked: int
     enabled_groups: list[str]
@@ -61,6 +64,7 @@ class Entry(Base):
             called_times=self.called_times,
             creator_id=self.creator_id,
             creator_name=self.creator_name,
+            create_time=self.create_time.strftime('%Y-%m-%d %H:%M:%S'),
             type=self.type,
             locked=self.locked,
             enabled_groups=[group.group_id for group in self.enabled_groups],

@@ -1,6 +1,6 @@
 from typing import Optional, Union
 
-from nonebot import require, logger, get_driver
+from nonebot import require, logger, get_driver, on_command
 
 from sqlalchemy.future import select
 
@@ -51,6 +51,14 @@ def get_entry(key: str, sender_id: str, group_id: str) -> Optional[EntryCache]:
             if entry.type == "PRIVATE" and sender_id == entry.creator_id:
                 return entry
     return None
+
+
+def get_all_group_entries(group_id: str) -> list[EntryCache]:
+    result = []
+    for entry in entries:
+        if group_id in entry.enabled_groups or "0" in entry.enabled_groups:
+            result.append(entry)
+    return result
 
 
 async def remove_group_entry(key: str, sender_id: str, group_id: str) -> Optional[int]:

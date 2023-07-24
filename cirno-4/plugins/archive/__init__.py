@@ -3,16 +3,69 @@ from nonebot import get_driver, require, on_command, Bot, logger
 from nonebot.params import CommandArg
 from nonebot.adapters.onebot.v11 import GroupMessageEvent, MessageSegment
 from nonebot.adapters import Message
+from nonebot.plugin import PluginMetadata
 import uuid
 from .models import EntryCache
 
 from .config import Config
 
 
+__plugin_meta__ = PluginMetadata(
+    name="词条库",
+    description="查询记录中的词条",
+    usage=".词条",
+    config=Config,
+    extra={
+        "is_local_plugin": True,
+        "menus": [
+            {
+                "name": "词条查询",
+                "description": "查询数据库",
+                "functions": [
+                    {
+                        "name": ".词条",
+                        "description": "获取存储的词条",
+                    },
+                    {
+                        "name": ".查询词条",
+                        "description": "获取已有词条的别名以及内容等信息",
+                    }
+                ]
+            },
+            {
+                "name": "词条编辑",
+                "description": "编辑或添加已有词条",
+                "functions": [
+                    {
+                        "name": ".编辑词条 词条名+#+词条内容",
+                        "description": "编辑已添加的词条，若词条不存在则添加词条, 词条仅在当前群生效, 词条内容可包含图片"
+                    },
+                    {
+                        "name": ".查询词条 词条名",
+                        "description": "获取已有词条的别名以及内容等信息"
+                    },
+                    {
+                        "name": ".移除词条 词条名",
+                        "description": "移除已添加的词条"
+                    },
+                    {
+                        "name": ".添加别名 词条名+#+别名",
+                        "description": "为已有词条添加别名, 添加后可使用别名触发词条"
+                    }
+                ]
+            }
+        ]
+    },
+)
+
+
 require("database_connector")
 require("nonebot_plugin_localstore")
+require("nonebot_plugin_templates")
+from ..templates_render.template_types import Func, Menu, Menus, Funcs
+from ..templates_render.templates_render import menu_render
 
-from .entries_storage import insert_new_entry, download_image, get_entry, remove_group_entry, add_group_alias
+from .entries_storage import insert_new_entry, download_image, get_entry, remove_group_entry, add_group_alias, get_all_group_entries
 import nonebot_plugin_localstore as store
 
 global_config = get_driver().config
@@ -38,11 +91,13 @@ add_entries = on_command("编辑词条", aliases={"添加词条", "增加词条"
 
 send_entry = on_command("", priority=5, block=False)
 
-remove_entry = on_command("删除词条", aliases={"删除词条", "移除词条"}, priority=15, block=True)
+remove_entry = on_command("移除词条", aliases={"删除词条"}, priority=15, block=True)
 
 add_alias = on_command("添加别名", aliases={"增加别名"}, priority=15, block=True)
 
 search_entry = on_command("搜索词条", aliases={"查找词条", "查询词条"}, priority=15, block=True)
+
+all_entries = on_command("词条", aliases={"词条列表", "词条一览"}, priority=15, block=True)
 
 
 @add_entries.handle()
@@ -139,8 +194,21 @@ async def _(event: GroupMessageEvent, arg: Message = CommandArg(), bot: Bot = No
         entry_info = f"以下为词条信息~\n词条名：[{entry.key}]\n"
         if len(entry.aliases) > 0:
             entry_info += f"别名: [{', '.join(entry.aliases)}]\n"
+        entry_info += f"创建者：{entry.creator_name}\n"
+        entry_info += f"创建时间：{entry.create_time}\n"
         entry_info += f"内容为：\n{entry.value}"
-        await bot.call_api('send_group_msg', message=entry_info, group_id=event.group_id)
+        try:
+            await bot.call_api('send_group_msg', message=entry_info, group_id=event.group_id)
+        except Exception as e:
+            logger.error(f"发送词条信息失败：{e}")
+            await search_entry.finish("词条信息发送失败QAQ可能原因是图片已过期~请更新词条图片后重试~")
         return
     else:
         await search_entry.finish("词条不存在哦~")
+
+
+@all_entries.handle()
+async def _(event: GroupMessageEvent, bot: Bot = None):
+    entries = get_all_group_entries(group_id=str(event.group_id))
+    if len(entries) == 0:
+        await all_entries.finish("当前群没有词条哦~")
