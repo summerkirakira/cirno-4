@@ -1,4 +1,6 @@
 from datetime import datetime
+from io import BytesIO
+
 from nonebot import get_driver, require, on_command, Bot, logger
 from nonebot.params import CommandArg
 from nonebot.adapters.onebot.v11 import GroupMessageEvent, MessageSegment
@@ -65,7 +67,7 @@ require("nonebot_plugin_templates")
 from ..templates_render.template_types import Func, Menu, Menus, Funcs
 from ..templates_render.templates_render import menu_render
 
-from .entries_storage import insert_new_entry, download_image, get_entry, remove_group_entry, add_group_alias, get_all_group_entries
+from .entries_storage import insert_new_entry, download_image, get_entry, remove_group_entry, add_group_alias, get_all_group_entries, display_entry
 import nonebot_plugin_localstore as store
 
 global_config = get_driver().config
@@ -212,3 +214,20 @@ async def _(event: GroupMessageEvent, bot: Bot = None):
     entries = get_all_group_entries(group_id=str(event.group_id))
     if len(entries) == 0:
         await all_entries.finish("当前群没有词条哦~")
+    funcs = []
+
+    if len(entries) < 100:
+        column_num = 2
+    else:
+        column_num = len(entries) // 50
+
+    for entry in entries:
+        funcs.append(
+            Func(
+                name=entry.key,
+                desc=display_entry(entry.value),
+            )
+        )
+    menu = Menu("词条列表", des="使用.词条名来获取词条", funcs=funcs)
+    pic_bytes = await menu_render(Menus(menu), 400 * column_num)
+    await all_entries.finish(message=Message(MessageSegment.image(pic_bytes)))

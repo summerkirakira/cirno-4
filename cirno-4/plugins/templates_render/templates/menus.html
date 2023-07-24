@@ -46,7 +46,7 @@
         .menu-funcs {
             font-family: "Custom Font";
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat({{column_num}}, 1fr);
             white-space: pre-line;
             grid-gap: 2px;
             background-color: {{ colors['func_grid'] }};

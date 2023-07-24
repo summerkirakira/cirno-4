@@ -17,7 +17,7 @@ config = Config.parse_obj(global_config)
 driver = get_driver()
 
 DATABASE_URL = f"mysql+aiomysql://{config.mysql_user}:{config.mysql_password}@{config.mysql_host}:{config.mysql_port}/{config.mysql_database}"
-engine = create_async_engine(DATABASE_URL, echo=True)
+engine = create_async_engine(DATABASE_URL)
 
 Base = declarative_base()
 

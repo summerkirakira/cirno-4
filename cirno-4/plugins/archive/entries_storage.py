@@ -13,6 +13,8 @@ require("database_connector")
 
 import httpx
 
+import re
+
 from ..database_connector import get_session
 from .models import Entry, Group, EntryCache, Alias
 
@@ -143,3 +145,10 @@ async def add_group_alias(key: str, alias: str, sender_id: str, group_id: str) -
         await session.commit()
         await fetch_all_entries()
         return new_entry
+
+
+def display_entry(text: str) -> str:
+    text = re.sub(r"\[CQ:image,file=.*?]", r"[图片]", text)
+    if len(text) > 20:
+        text = text[:20] + "..."
+    return text

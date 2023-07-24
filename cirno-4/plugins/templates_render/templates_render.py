@@ -3,7 +3,7 @@ from typing import Optional
 
 from nonebot import require
 
-from nonebot_plugin_templates.template_types import *
+from .template_types import *
 
 require("nonebot_plugin_htmlrender")
 from nonebot_plugin_htmlrender import html_to_pic
@@ -94,8 +94,13 @@ async def menu_render(menus: Menus, width: int, colors: Optional[dict] = None, f
             "func_index_text": "#FFFFFF",  # 命令前的索引的数字的颜色
             "func_index_bg": "#8D3C1E",  # 命令前的索引的数字的圆形背景颜色
         }
+    menus_dict, func_size = menus.to_dict()
+    if func_size < 100:
+        column_num = 2
+    else:
+        column_num = func_size // 50
     html = await MENUS_TEMPLATE.render_async(
-        menus=menus.to_dict(), colors=colors, font_path=font_path
+        menus=menus_dict, colors=colors, font_path=font_path, column_num=column_num
     )
     return await html_to_pic(html, viewport={"width": width, "height": 10})
 

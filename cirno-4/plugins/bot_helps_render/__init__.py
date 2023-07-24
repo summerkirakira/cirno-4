@@ -37,7 +37,7 @@ async def load_plugins():
             }
 
 
-help_render = on_command("帮助", aliases={"help"}, priority=15, block=True)
+help_render = on_command("帮助", aliases={"help", "菜单"}, priority=5, block=True)
 
 
 @help_render.handle()
