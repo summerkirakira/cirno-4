@@ -4,10 +4,33 @@ from typing import Any, Dict
 from nonebot import on_endswith, on_fullmatch, on_regex
 from nonebot.adapters.onebot.v11 import MessageEvent
 from nonebot.params import Endswith, RegexDict
-
+from nonebot.plugin import PluginMetadata
 from .exchangerate import exchange_currency, get_currency_info, get_currency_list
 
+from .config import Config
+
 exchange = on_regex(r"^\.(?P<amount>\d+\.?\d*)(?P<currency>[\u4e00-\u9fff]{1,5}$)")
+__plugin_meta__ = PluginMetadata(
+    name="汇率查询",
+    description="查询当前各货币的汇率",
+    usage=".词条",
+    config=Config,
+    extra={
+        "is_local_plugin": True,
+        "menus": [
+            {
+                "name": "汇率查询",
+                "description": "查询当前各货币的汇率",
+                "functions": [
+                    {
+                        "name": ".数量+货币名",
+                        "description": "查询该货币的汇率",
+                    }
+                ]
+            }
+        ]
+    },
+)
 
 
 @exchange.handle()
