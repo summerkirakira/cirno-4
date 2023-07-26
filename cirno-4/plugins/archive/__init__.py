@@ -67,7 +67,7 @@ require("nonebot_plugin_templates")
 from ..templates_render.template_types import Func, Menu, Menus, Funcs
 from ..templates_render.templates_render import menu_render
 
-from .entries_storage import insert_new_entry, download_image, get_entry, remove_group_entry, add_group_alias, get_all_group_entries, display_entry
+from .entries_storage import insert_new_entry, download_image, get_entry, remove_group_entry, add_group_alias, get_all_group_entries, display_entry, fetch_all_entries
 import nonebot_plugin_localstore as store
 
 global_config = get_driver().config
@@ -100,6 +100,8 @@ add_alias = on_command("添加别名", aliases={"增加别名"}, priority=15, bl
 search_entry = on_command("搜索词条", aliases={"查找词条", "查询词条"}, priority=15, block=True)
 
 all_entries = on_command("词条", aliases={"词条列表", "词条一览"}, priority=15, block=True)
+
+refresh_archive = on_command("刷新词条", aliases={"同步词条", "更新词条"}, priority=15, block=True)
 
 
 @add_entries.handle()
@@ -231,3 +233,13 @@ async def _(event: GroupMessageEvent, bot: Bot = None):
     menu = Menu("词条列表", des="使用.词条名来获取词条", funcs=funcs)
     pic_bytes = await menu_render(Menus(menu), 400 * column_num)
     await all_entries.finish(message=Message(MessageSegment.image(pic_bytes)))
+
+
+@refresh_archive.handle()
+async def _():
+    try:
+        entries = await fetch_all_entries()
+    except Exception as e:
+        logger.error(f"刷新词条缓存失败：{e}")
+        await refresh_archive.finish("刷新失败QAQ")
+    await refresh_archive.finish(f"词条库与数据库同步成功哦~当前词条数量为{len(entries)}~")
