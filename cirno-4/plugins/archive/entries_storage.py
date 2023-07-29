@@ -4,7 +4,7 @@ from nonebot import require, logger, get_driver, on_command
 
 from sqlalchemy.future import select
 
-from sqlalchemy import update, delete, insert, or_
+from sqlalchemy import update, delete, insert, or_, and_
 from pathlib import Path
 
 from sqlalchemy.orm import selectinload
@@ -46,6 +46,7 @@ async def init_entries():
 
 
 def get_entry(key: str, sender_id: str, group_id: str) -> Optional[EntryCache]:
+    key = key.split("#")[0]
     for entry in entries:
         if entry.key == key or key in entry.aliases:
             if group_id in entry.enabled_groups or "0" in entry.enabled_groups:
@@ -58,6 +59,8 @@ def get_entry(key: str, sender_id: str, group_id: str) -> Optional[EntryCache]:
 def get_all_group_entries(group_id: str) -> list[EntryCache]:
     result = []
     for entry in entries:
+        if '#' in entry.key:
+            continue
         if group_id in entry.enabled_groups or "0" in entry.enabled_groups:
             result.append(entry)
     return result
@@ -66,11 +69,26 @@ def get_all_group_entries(group_id: str) -> list[EntryCache]:
 async def remove_group_entry(key: str, sender_id: str, group_id: str) -> Optional[int]:
     session = await get_session()
     async with session.begin():
-        result = await session.execute(select(Entry).where(Entry.key == key or Entry.aliases.any(Alias.key == key)).where(Entry.enabled_groups.any(Group.group_id == group_id)))
+        result = await session.execute(
+            select(Entry).where(Entry.key == key or Entry.aliases.any(Alias.key == key)).where(
+                Entry.enabled_groups.any(Group.group_id == group_id)))
         entry = result.scalar()
         if entry is None:
             return None
         await session.delete(entry)
+        await session.commit()
+        await fetch_all_entries()
+        return 0
+
+
+async def force_remove_group_entry(key: str) -> Optional[int]:
+    session = await get_session()
+    async with session.begin():
+        entries_to_delete = await session.execute(
+            select(Entry).where(or_(Entry.key == key, Entry.aliases.any(Alias.key == key))))
+        entries_to_delete = entries_to_delete.scalars().all()
+        for entry in entries_to_delete:
+            await session.delete(entry)
         await session.commit()
         await fetch_all_entries()
         return 0
@@ -107,7 +125,9 @@ async def insert_new_entry(key: str, value: str, available: bool, called_times: 
                 is_exist = True
                 break
         if is_exist:
-            updated_entry = await session.execute(select(Entry).where(or_(Entry.key == key, Entry.aliases.any(Alias.key == key))).where(Entry.enabled_groups.any(Group.group_id == enabled_group)))
+            updated_entry = await session.execute(
+                select(Entry).where(or_(Entry.key == key, Entry.aliases.any(Alias.key == key))).where(
+                    Entry.enabled_groups.any(Group.group_id == enabled_group)))
             updated_entry = updated_entry.scalar()
             updated_entry.value = value
             await session.commit()
@@ -123,17 +143,32 @@ async def insert_new_entry(key: str, value: str, available: bool, called_times: 
         return "词条编辑成功啦~"
 
 
+async def insert_global_new_entry(key: str, value: str, creator_id: str,
+                                  creator_name: str, create_time, locked: bool) -> str:
+    session = await get_session()
+    async with session.begin():
+        global entries
+        await force_remove_group_entry(key)
+        add_entry = Entry(key=key, value=value, available=True, called_times=0, creator_id=creator_id,
+                          creator_name=creator_name, create_time=create_time, type="SYS", locked=locked,
+                          enabled_groups=[Group(group_id="0")], aliases=[])
+        session.add(add_entry)
+        await session.commit()
+        await fetch_all_entries()
+        return "词条编辑成功啦~"
+
+
 async def add_group_alias(key: str, alias: str, sender_id: str, group_id: str) -> Union[EntryCache, str]:
     for entry in entries:
-        if entry.key == key and group_id in entry.enabled_groups:
+        if entry.key == key and (group_id in entry.enabled_groups or "0" in entry.enabled_groups):
             if alias in entry.aliases:
                 return "这个别名已经存在啦~"
     session = await get_session()
     async with session.begin():
         result = await session.execute(select(Entry).
-                                       filter(or_(Entry.key == key, Entry.aliases.any(Alias.key == key)))
-                                       .where(Entry.enabled_groups
-                                       .any(Group.group_id == group_id))
+                                       filter(or_(Entry.key == key, Entry.aliases.any(Alias.key == key)),
+                                              )
+                                       .filter(or_(Entry.enabled_groups.any(Group.group_id == group_id), Entry.enabled_groups.any(Group.group_id == "0")))
                                        .options(selectinload(Entry.enabled_groups))
                                        .options(selectinload(Entry.aliases))
                                        )

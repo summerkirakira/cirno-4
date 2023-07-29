@@ -39,6 +39,17 @@ async def main():
         logger.success(f"Connected to {config.mysql_host}")
 
 
+@driver.on_shutdown
+async def shutdown():
+    await engine.dispose()
+    logger.success(f"Disconnected from {config.mysql_host}")
+
+
 async def get_session():
-    return AsyncSession(engine)
+    conn = AsyncSession(engine)
+    if conn.is_active:
+        return conn
+    else:
+        await conn.begin()
+        return conn
 

@@ -43,7 +43,7 @@ class Entry(Base):
     __tablename__ = 'entry'
     id = Column(Integer, primary_key=True, autoincrement=True)
     key = Column(String(100))
-    aliases = relationship('Alias', backref='entry')
+    aliases = relationship('Alias', backref='entry', cascade='all, delete-orphan')
     value = Column(String(5000))
     available = Column(Integer)
     called_times = Column(Integer)
@@ -54,7 +54,7 @@ class Entry(Base):
     locked = Column(Integer)
     # 一对多
     # 一个entry对应多个tag
-    enabled_groups = relationship('Group', backref='entry')
+    enabled_groups = relationship('Group', backref='entry', cascade='all, delete-orphan')
 
     def to_cache(self) -> EntryCache:
         return EntryCache(
