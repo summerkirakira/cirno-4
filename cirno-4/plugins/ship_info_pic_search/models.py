@@ -835,6 +835,24 @@ class Archive(BaseModel):
     missile_racks: list[MissileRack]
 
 
+class ShipPic(BaseModel):
+    id: str
+    name: str
+    url: str
+    width: int
+    height: int
+    upgrade_name: Optional[str] = None
+    createdAt: str
+    updatedAt: str
+
+    class Model(BaseModel):
+        id: str
+        name: str
+        slug: str
+
+    model: Model
+
+
 class ShipGroup(BaseModel):
     class ShipInfo(BaseModel):
         manufacturer: str
@@ -850,6 +868,7 @@ class ShipGroup(BaseModel):
         photo_name: str
         alias: list[str] = []
         ship: Ship
+        ship_pic: list[ShipPic] = []
 
     ships: list[ShipInfo] = []
 
