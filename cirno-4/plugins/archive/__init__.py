@@ -1,5 +1,4 @@
 from datetime import datetime
-from io import BytesIO
 
 from nonebot import get_driver, require, on_command, Bot, logger
 from nonebot.permission import SUPERUSER
@@ -80,8 +79,6 @@ driver = get_driver()
 #     await create_table_from_class()
 
 image_path = store.get_data_dir("archive") / "images"
-
-logger.warning(image_path.absolute())
 
 if not image_path.exists():
     image_path.mkdir(parents=True)
